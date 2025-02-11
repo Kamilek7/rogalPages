@@ -7,6 +7,7 @@
 ?>
 <html>
     <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,9 +30,16 @@
             
         </header>
         
-        <form action="index.php" class="search">
+        <form action="index.php" id="search">
             <input type="text" placeholder="Wyszukaj..." name="search">
-            <button type="submit"><i class="fa fa-search"></i></button>
+            <div id='dropdown'>
+                <div id='dropdown-search'><i class="fa fa-search"></i></div>
+                <div id='dropdown-content'>
+                    <button type="submit" name='type' value='post'>Post</button>
+                    <button type="submit" name='type' value='user'>Uzytkownik</button>
+                    <button type="submit" name='type' value='tag'>Hashtag</button>
+                </div>
+            </div>
         </form>
         <main>
         <?php
@@ -48,10 +56,22 @@
                     if ($result->num_rows > 0) {
                         while($row = $result->fetch_assoc()) 
                         {   
+                            $text = $row['content'];
+                            if (preg_match_all("~(#\w+)~", $text, $matches, PREG_PATTERN_ORDER))
+                            {
+                                foreach ($matches[1] as $word) {
+                                    if (!str_contains($word,  "#039"))
+                                    {
+                                        $tag = str_replace( "#", "", $word);
+                                        $text = str_replace($word, "<a href=index.php?search=$tag&type=tag>$word</a>", $text);
+                                    }
+
+                                 }
+                            }
                             $text2show = "<section><div class='post'>";
                             $text2show .= "<div style='display:flex;'><div class='avatar'><img src='avatars/".$row['avatar']."' width='50px' height='50px'> </div>";
                             $text2show .= "<div class='postUser'>" . $row['name'] . "</div></div>";
-                            $text2show .= "<div class='text'>" . $row['content'] . "</div>";
+                            $text2show .= "<div class='text'>$text</div>";
                             $date = str_replace(" ", " | ",$row['datePosted']);
                             $likesinfo = $row['likes'];
                             $numLikes = substr_count($likesinfo,';');
@@ -128,6 +148,7 @@
 
                 $numPages = 0;
                 $sql = "";
+                $type = "";
                 if (empty($_GET['search']))
                 {
                     $page = 1;
@@ -158,36 +179,73 @@
                     }
 
                     $page = ($page-1)*5;
-                    echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Wyszukane posty: </div>";
-                    $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar
-                    FROM posts JOIN users  ON posts.userID = users.ID WHERE posts.content LIKE '%".$_GET['search']."%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
-                
-                    processPostsAndComments($sql, $polaczenie);
 
-                    $sqlCount = "SELECT posts.ID as postID from posts WHERE posts.content LIKE '%".$_GET['search']."%';";
-                    $res = $polaczenie->query($sqlCount);
-                    $numPosts = $res->num_rows;
-
-                    $numPages = ceil($numPosts/5);
-                    if ($numPages==1)
-                        $numPages = 0;
-                    if (!$numPosts)
+                    $type = "post";
+                    if (!empty($_GET['type']))
                     {
-                        echo "<div style='font-size:3vh; margin-top:1vh; margin-left:auto;margin-right:auto; text-align:center;'>Brak postow.</div>";
+
+                        $type = $_GET['type'];
                     }
+
+                    if ($type == "post")
+                    {
+                        echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Wyszukane posty: </div>";
+                        $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar
+                        FROM posts JOIN users  ON posts.userID = users.ID WHERE posts.content LIKE '%".$_GET['search']."%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
                     
-                    echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Posty po uzytkownikach: </div>";
-                    $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login 
-                    FROM posts JOIN users  ON posts.userID = users.ID WHERE users.name LIKE '%".$_GET['search']."%' ORDER BY posts.ID DESC;";
-                
-                    $numPosts = processPostsAndComments($sql, $polaczenie);
-                    $numPages = ceil($numPosts/5);
-                    if ($numPages==1)
-                        $numPages = 0;
-                    if (!$numPosts)
-                    {
-                        echo "<div style='font-size:3vh; margin-top:1vh; margin-left:auto;margin-right:auto; text-align:center;'>Brak postow.</div>";
+                        processPostsAndComments($sql, $polaczenie);
+    
+                        $sqlCount = "SELECT posts.ID as postID from posts WHERE posts.content LIKE '%".$_GET['search']."%';";
+                        $res = $polaczenie->query($sqlCount);
+                        $numPosts = $res->num_rows;
+    
+                        $numPages = ceil($numPosts/5);
+                        if ($numPages==1)
+                            $numPages = 0;
+                        if (!$numPosts)
+                        {
+                            echo "<div style='font-size:3vh; margin-top:1vh; margin-left:auto;margin-right:auto; text-align:center;'>Brak postow.</div>";
+                        }
                     }
+                    elseif ($type== "user")
+                    {
+                        echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Posty po uzytkownikach: </div>";
+                        $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar 
+                        FROM posts JOIN users  ON posts.userID = users.ID WHERE users.name LIKE '%".$_GET['search']."%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
+                        processPostsAndComments($sql, $polaczenie);
+
+                        $sqlCount = "SELECT posts.ID as postID FROM posts JOIN users ON posts.userID = users.ID WHERE users.name LIKE '%".$_GET['search']."%'";
+                        $res = $polaczenie->query($sqlCount);
+                        $numPosts = $res->num_rows;
+                        $numPages = ceil($numPosts/5);
+                        if ($numPages==1)
+                            $numPages = 0;
+                        if (!$numPosts)
+                        {
+                            echo "<div style='font-size:3vh; margin-top:1vh; margin-left:auto;margin-right:auto; text-align:center;'>Brak postow.</div>";
+                        }
+                    }
+                    elseif ($type =="tag")
+                    {
+                        echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Posty wyszukane po tagu: </div>";
+                        $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar
+                        FROM posts JOIN users  ON posts.userID = users.ID WHERE posts.content LIKE '%#".$_GET['search']."%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
+                    
+                        processPostsAndComments($sql, $polaczenie);
+    
+                        $sqlCount = "SELECT posts.ID as postID from posts WHERE posts.content LIKE '%#".$_GET['search']."%';";
+                        $res = $polaczenie->query($sqlCount);
+                        $numPosts = $res->num_rows;
+    
+                        $numPages = ceil($numPosts/5);
+                        if ($numPages==1)
+                            $numPages = 0;
+                        if (!$numPosts)
+                        {
+                            echo "<div style='font-size:3vh; margin-top:1vh; margin-left:auto;margin-right:auto; text-align:center;'>Brak postow.</div>";
+                        }
+                    }
+
                 }
                 
                 if ($numPages>0)
@@ -209,7 +267,7 @@
                         $class = 'page';
                         if ($current==$page)
                             $class= 'pageCrnt';
-                        echo "<a href='index.php?search=$search&page=$page'><button type='submit' class='$class'>$page</button></a>";
+                        echo "<a href='index.php?search=$search&type=$type&page=$page'><button type='submit' class='$class'>$page</button></a>";
                     }
                     echo "</div>";
                 }                
@@ -222,6 +280,7 @@
 </body>
 
 <script>
+
         function setCookie(name, value, exp) 
         {
             const d = new Date();

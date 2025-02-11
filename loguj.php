@@ -15,7 +15,7 @@
 
     <div id="main">
         <header>
-            <div id='head'>Rogal</div>
+            <div id='head'><a href='index.php'>Rogal</a></div>
             <?php
             if (empty($_SESSION['login']))
                 echo "<div id='panel'><a href='loguj.php'>Zaloguj się</a><a href='rejestruj.php'>Zarejestruj się</a></div>";
@@ -29,8 +29,10 @@
                 
                     if (!empty($_POST['login']) && !empty($_POST['password']))
                     {
-                        $sql = "SELECT password, ID FROM users WHERE login='".$_POST['login']."';";
-                        $result = $polaczenie->query($sql);
+
+                        $login = htmlentities($_POST['login'], ENT_QUOTES, 'UTF-8');
+                        $result = $polaczenie->query(sprintf("SELECT password, ID FROM users WHERE login='%s';",
+                        mysqli_real_escape_string($polaczenie, $login)));
                         
                         if ($result->num_rows == 1) 
                         {

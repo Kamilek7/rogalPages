@@ -6,8 +6,11 @@
         {
 
                 $userID = $_SESSION['login'];
-                $sql2 = "INSERT INTO comments (userID, content, postID, likes) VALUES ('" . $userID . "', '". $_POST['content'] ."', '".$_POST['postId'] ."', '');";
-                $result1 = $polaczenie->query($sql2);
+                $content = htmlentities($_POST['content'], ENT_QUOTES, 'UTF-8');
+                $id = htmlentities($_POST['postId'], ENT_QUOTES, 'UTF-8');
+                $result1 = $polaczenie->query(
+                    sprintf("INSERT INTO comments (userID, content, postID, likes) VALUES ('$userID ', '%s', '$id', '');", mysqli_real_escape_string($polaczenie, $content))
+                );
         }
         header("location: index.php");
 ?>

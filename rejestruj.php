@@ -15,7 +15,7 @@
 
     <div id="main">
         <header>
-            <div id='head'>Rogal</div>
+            <div id='head'><a href='index.php'>Rogal</a></div>
             <?php
             if (empty($_SESSION['login']))
                 echo "<div id='panel'><a href='loguj.php'>Zaloguj się</a><a href='rejestruj.php'>Zarejestruj się</a></div>";
@@ -29,7 +29,8 @@
                 
                     if (!empty($_POST['login']) && !empty($_POST['password']) && !empty($_POST['name']))
                     {
-                        $sql = "SELECT * FROM users WHERE login='".$_POST['login']."';";
+                        $login = htmlentities($_POST['login'], ENT_QUOTES, 'UTF-8');
+                        $sql = "SELECT * FROM users WHERE login='$login';";
                         $result = $polaczenie->query($sql);
                         if ($result->num_rows == 0) 
                         {
@@ -44,9 +45,13 @@
     
                                 move_uploaded_file($_FILES["profilePic"]["tmp_name"], $target_file);
                             }
-                            $sql = "INSERT INTO users (login, name, password, avatar) VALUES ('" . $_POST['login']."', '".$_POST['name']."', '".password_hash($_POST['password'], PASSWORD_DEFAULT)."', '$avatar');";
-                            $result = $polaczenie->query($sql);
-                            $sql = "SELECT ID FROM users WHERE login='".$_POST['login']."';";
+                            $name = htmlentities($_POST['name'], ENT_QUOTES, 'UTF-8');
+                            $password = htmlentities($_POST['password'], ENT_QUOTES, 'UTF-8');
+                            $result = $polaczenie->query(sprintf("INSERT INTO users (login, name, password, avatar) VALUES ('%s', '%s', '".password_hash($password, PASSWORD_DEFAULT)."', '$avatar');",
+                                mysqli_real_escape_string($polaczenie, $login),
+                                mysqli_real_escape_string($polaczenie, $name)    
+                            ));
+                            $sql = "SELECT ID FROM users WHERE login='$login';";
                             $result = $polaczenie->query($sql);
 
 
@@ -69,6 +74,7 @@
                         <input type='text' name='login'>
                         <p> Hasło </p>
                         <input type='password' name='password'>
+                        <p> Awatar (plik obrazu nie moze przekraczać 2MB) </p>
                         <input type='file' id='profilePic' name='profilePic' accept=".png, .jpg, .jpeg">
 
                         <input type='submit' value='Zarejestruj się'>

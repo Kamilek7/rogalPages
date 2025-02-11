@@ -304,14 +304,19 @@ summary:hover
     margin-right: auto;
     border-radius: 2vw;
     width:60%;
-    height:60vh;
+    height:70vh;
     background-color: #F7F7F7;
     display:flex;
+    align-items: center;
     justify-content: center;
 }
+
 #formLogin > *
 {
     display: block;
+    text-align: center;
+    margin-left:auto;
+    margin-right: auto;
 }
 
 #formLogin > p
@@ -324,10 +329,15 @@ summary:hover
     height: 3vh;
     font-size: 1.1vw;
 }
+#formLogin > input[type='file']
+{
+    height: 4vh;
+    font-size: 1.1vw;
+}
 #formLogin > input[type='submit']
 {
     height: 3.2vh;
-    margin-top: 7vh;
+    margin-top: 5vh;
     margin-left: auto;
     margin-right: auto;
 }
@@ -370,26 +380,77 @@ summary:hover
 {
     cursor:pointer;
 }
-.search
+#dropdown-search
 {
+    width:70px;
+    height: 35.2px;
+    background-color: #696969;
+    border-radius: 0 3px 3px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#dropdown-content
+{
+    height:0px;
+    position: absolute;
+    transition: all ease-in-out 0.5s;
+    overflow:hidden;
+}
+#dropdown-content button
+{
+    top:0;
+    font-family:'Smooch Sans';
+    visibility:hidden;
+    width:70px;
+    height: 30px;
+    margin: 0;
+    border: none;
+    background-color: #9d9d9d;
+    transition: 0.4s all ease-in-out;
+    border-bottom: solid rgb(125, 125, 125) 1px;
+}
+#dropdown-content button:last-child
+{
+    border-radius: 0 0 3px 3px;
+}
+#dropdown-content button:hover
+{
+    background-color: #bcbcbc;
+    cursor: pointer;
+    border-bottom: solid rgb(136, 136, 136) 1px;
+}
+#dropdown:hover #dropdown-content button
+{
+    display:block;
+    top:auto;
+    visibility:visible;
+
+}
+#dropdown:hover #dropdown-content
+{
+    height:200px;
+    display: block;
+
+}
+#search
+{
+    position: relative;
+    display:flex;
     margin-top: 2vh;
     margin-left: auto;
     margin-right: auto;
     width:fit-content;
 }
-.search input[type='text']
+#search input[type='text']
 {
     width:40vw;
     padding-left: 0.5vw;
     padding-right: 0.5vw;
     height:30px;
     margin-right:0;
-}
-.search button
-{
-    margin-left: 0;
-    width:35px;
-    height:35px;
 }
 #pages
 {
