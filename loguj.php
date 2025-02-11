@@ -26,8 +26,8 @@
         <main>
             <div id='body'>
                 <?php 
-                
-                    if (!empty($_POST['login']) && !empty($_POST['password']))
+                $ERRORCODE = "";
+                    if (!empty($_POST['login']) && !empty($_POST['password']) && !empty($_POST['loguj']))
                     {
 
                         $login = htmlentities($_POST['login'], ENT_QUOTES, 'UTF-8');
@@ -44,20 +44,34 @@
                                     $_SESSION['login'] = $row['ID'];
                                     header("location: index.php");
                                 }
+                                else
+                                {
+                                    $ERRORCODE = "Podano niepoprawne hasło!!";
+                                }
 
                             }
 
                         }
+                        else
+                        {
+                            $ERRORCODE = "Nie znaleziono uzytkownika o podanym nicku!";
+                        }
                     }
+                    elseif (!empty($_POST['loguj']))
+                    {
+                        $ERRORCODE = "Podaj dane do wszystich wymaganych pól!";
+                    }
+                    if ($ERRORCODE!="")
+                        echo "<b><p style='color:red;text-align:center;'>$ERRORCODE<p></b>";
                 ?>
                     <div id='loginForm'>
                         <form action='loguj.php' method='post'  id='formLogin'>
                         <div id='loginHead'>Zaloguj się</div>
                         <p> Login </p>
-                        <input type='text' name='login'>
+                        <input required type='text' name='login'>
                         <p> Hasło </p>
-                        <input type='password' name='password'>
-                        <input type='submit' value='Zaloguj się'>
+                        <input required type='password' name='password'>
+                        <input type='submit' value='Zaloguj się' name='loguj'>
                         </form>
                     </div>
             </div>

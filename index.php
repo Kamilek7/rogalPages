@@ -172,6 +172,8 @@
                 }
                 else
                 {
+                    $search =  mysqli_real_escape_string($polaczenie,htmlentities($_GET['search'],ENT_QUOTES, 'UTF-8'));
+
                     $page = 1;
                     if (!empty($_GET['page']))
                     {
@@ -191,11 +193,11 @@
                     {
                         echo "<div style='font-size:5.5vh; margin-top:5vh; margin-left:auto;margin-right:auto; text-align:center;'> Wyszukane posty: </div>";
                         $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar
-                        FROM posts JOIN users  ON posts.userID = users.ID WHERE posts.content LIKE '%".$_GET['search']."%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
+                        FROM posts JOIN users  ON posts.userID = users.ID WHERE posts.content LIKE '%$search%' ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
                     
                         processPostsAndComments($sql, $polaczenie);
     
-                        $sqlCount = "SELECT posts.ID as postID from posts WHERE posts.content LIKE '%".$_GET['search']."%';";
+                        $sqlCount = "SELECT posts.ID as postID from posts WHERE posts.content LIKE '%$search%';";
                         $res = $polaczenie->query($sqlCount);
                         $numPosts = $res->num_rows;
     

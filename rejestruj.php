@@ -27,6 +27,7 @@
             <div id='body'>
                 <?php 
                 
+                $ERRORCODE = "";
                     if (!empty($_POST['login']) && !empty($_POST['password']) && !empty($_POST['name']))
                     {
                         $login = htmlentities($_POST['login'], ENT_QUOTES, 'UTF-8');
@@ -63,21 +64,29 @@
                             
                             header("location: index.php");
                         }
+                        else
+                        {
+                            $ERRORCODE = "Istnieje już użytkownik o podanym loginie!";
+                        }
                     }
+                    elseif (!empty($_POST['rejestruj']))
+                        $ERRORCODE= "Podaj wszystkie dane do wymaganych pól!";
+                    if ($ERRORCODE!="")
+                        echo "<b><p style='color:red;text-align:center;'>$ERRORCODE<p></b>";
                 ?>
                     <div id='loginForm'>
                         <form enctype="multipart/form-data" id='formLogin' action='rejestruj.php' method='post'>
                         <div id='loginHead'>Zarejestruj się</div>
                         <p> Wyświetlana nazwa </p>
-                        <input type='text' name='name'>
+                        <input required type='text' name='name'>
                         <p> Login </p>
-                        <input type='text' name='login'>
+                        <input required type='text' name='login'>
                         <p> Hasło </p>
-                        <input type='password' name='password'>
-                        <p> Awatar (plik obrazu nie moze przekraczać 2MB) </p>
+                        <input required type='password' name='password'>
+                        <p> Awatar </p>
                         <input type='file' id='profilePic' name='profilePic' accept=".png, .jpg, .jpeg">
 
-                        <input type='submit' value='Zarejestruj się'>
+                        <input type='submit' name='rejestruj' value='Zarejestruj się'>
                         </form>
                     </div>
             </div>
