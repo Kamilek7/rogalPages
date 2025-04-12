@@ -8,11 +8,13 @@
 <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Rogal</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Smooch+Sans:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
 
@@ -41,6 +43,8 @@
                 </div>
             </div>
         </form>
+
+        <div id='sortHolder'><a href="index.php?sort=likes"><button><i class="fa fa-heart"></i></button></a><a href="index.php?sort=time"><button><i class="fa fa-clock-o"></i></button></a></div>
         <main>
         <?php
             if (!empty($_SESSION['login']))
@@ -95,7 +99,7 @@
                             $text2show .= ">❤︎</div><div id='" . $row['postID']."num'> $numLikes</div></div>";
                             $text2show .= "<div class='postInfo'>$date  | ". $row['login']. "</div></div>";
     
-                            $sqlComments = "SELECT comments.ID, comments.content,comments.likes, comments.date, users.name, users.login, users.avatar FROM comments JOIN users ON comments.userID = users.ID WHERE comments.postID =".$row['postID']." ORDER BY comments.date DESC;";
+                            $sqlComments = "SELECT comments.ID, comments.content,comments.likes, comments.date, users.name, users.login, users.avatar FROM comments JOIN users ON comments.userID = users.ID WHERE comments.postID =".$row['postID']." ORDER BY comments.date ASC;";
                             $resultComments = $polaczenie->query($sqlComments);
                             $text2show .= "<details>";
                             $text2show .="<summary>Komentarze (". $resultComments->num_rows . ")</summary>";
@@ -146,6 +150,7 @@
                     }
                 }
 
+                $sort="";
                 $numPages = 0;
                 $sql = "";
                 $type = "";
@@ -156,9 +161,21 @@
                     {
                         $page = $_GET['page'];
                     }
+                    if (!empty($_GET['sort']))
+                    {
+                        $sort = $_GET['sort'];
+                    }
+
                     $page = ($page-1)*5;
+
+                    if ($sort == "likes")
+                    $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar, (LENGTH(posts.likes) - LENGTH(REPLACE(posts.likes, ';', ''))) AS numLikes FROM posts JOIN users  ON posts.userID = users.ID ORDER BY numLikes DESC LIMIT 5 OFFSET $page;";
+                    else
                     $sql = "SELECT posts.ID as postID, posts.likes, posts.content, posts.datePosted, users.name, users.login, users.avatar
                     FROM posts JOIN users  ON posts.userID = users.ID ORDER BY posts.ID DESC LIMIT 5 OFFSET $page;";
+
+
+
                     
                     processPostsAndComments($sql, $polaczenie);
                     $sqlCount = "SELECT posts.ID as postID from posts";
@@ -269,7 +286,7 @@
                         $class = 'page';
                         if ($current==$page)
                             $class= 'pageCrnt';
-                        echo "<a href='index.php?search=$search&type=$type&page=$page'><button type='submit' class='$class'>$page</button></a>";
+                        echo "<a href='index.php?search=$search&type=$type&page=$page&sort=$sort'><button type='submit' class='$class'>$page</button></a>";
                     }
                     echo "</div>";
                 }                

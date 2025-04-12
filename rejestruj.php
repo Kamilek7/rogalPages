@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Climate+Crisis&family=Smooch+Sans:wght@100..900&display=swap" rel="stylesheet">
+    <title>Rogal</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     </head>
 <body>
 
@@ -38,13 +40,15 @@
                             $avatar = "anon.png";
                             if (!empty($_FILES["profilePic"]["name"]))
                             {
-                                $avatar= basename($_FILES["profilePic"]["name"]);
+                                
+                                $avatar= time() . $_FILES["profilePic"]["name"]; 
                                 $target_dir = "avatars/";
                                 $target_file = $target_dir . $avatar;
-                                $uploadOk = 1;
                                 $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
-    
-                                move_uploaded_file($_FILES["profilePic"]["tmp_name"], $target_file);
+                                if ($imageFileType == "jpg" || $imageFileType == "png" || $imageFileType == "jpeg" || $_FILES["fileToUpload"]["size"] <= 2097152)
+                                    move_uploaded_file($_FILES["profilePic"]["tmp_name"], $target_file);
+                                else
+                                    $avatar = "anon.png";
                             }
                             $name = htmlentities($_POST['name'], ENT_QUOTES, 'UTF-8');
                             $password = htmlentities($_POST['password'], ENT_QUOTES, 'UTF-8');
@@ -83,8 +87,8 @@
                         <input required type='text' name='login'>
                         <p> Hasło </p>
                         <input required type='password' name='password'>
-                        <p> Awatar </p>
-                        <input type='file' id='profilePic' name='profilePic' accept=".png, .jpg, .jpeg">
+                        <p> Awatar (maksymalna wielkosc pliku - 2MB) </p>
+                        <input type='file' id='profilePic' name='profilePic' accept=".png, .jpg, .jpeg, .gif">
 
                         <input type='submit' name='rejestruj' value='Zarejestruj się'>
                         </form>
